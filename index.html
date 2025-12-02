@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليلات بيانات إكسل</title>
+
+    <!-- مكتبة تحليل Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <!-- مكتبة Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: "Tahoma", sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            text-align: center;
+        }
+        .upload-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 450px;
+            margin: auto;
+        }
+        .dashboard {
+            margin-top: 40px;
+        }
+        canvas {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 900px;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2 class="title">📊 تطبيق تحليلات بيانات إكسل</h2>
+
+    <div class="upload-box">
+        <h3>قم برفع ملف إكسل</h3>
+        <input type="file" id="fileInput" accept=".xlsx, .xls">
+    </div>
+
+    <div class="dashboard">
+        <h3>نتائج التحليل</h3>
+        <canvas id="chart"></canvas>
+    </div>
+
+    <script>
+        document.getElementById("fileInput").addEventListener("change", function (e) {
+            let file = e.target.files[0];
+
+            let reader = new FileReader();
+            reader.onload = function (event) {
+                let data = new Uint8Array(event.target.result);
+                let workbook = XLSX.read(data, { type: "array" });
+
+                let sheet = workbook.SheetNames[0];
+                let excelData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+
+                let labels = [];
+                let values = [];
+
+                excelData.forEach(row => {
+                    labels.push(Object.values(row)[0]);  
+                    values.push(Object.values(row)[1]);  
+                });
+
+                new Chart(document.getElementById("chart"), {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "البيانات",
+                            data: values
+                        }]
+                    }
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+
+</body>
+</html>
